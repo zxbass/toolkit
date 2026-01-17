@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -192,4 +193,20 @@ func (t *Tools) CreateDirIfNotExists(path string) error {
 		}
 	}
 	return nil
+}
+
+func (t *Tools) Slugify(s string) (string, error) {
+	if len(s) == 0 {
+		return "", errors.New("string should not be empty")
+	}
+
+	var re = regexp.MustCompile(`[^a-z\d]+`)
+
+	slug := strings.Trim(re.ReplaceAllString(strings.ToLower(s), "-"), "-")
+
+	if len(slug) == 0 {
+		return "", errors.New("given string produces empty slug")
+	}
+
+	return slug, nil
 }
