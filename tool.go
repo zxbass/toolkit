@@ -101,6 +101,10 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 		return nil, errors.New("uploaded file is too big")
 	}
 
+	if err := t.CreateDirIfNotExists(uploadDir); err != nil {
+		return nil, err
+	}
+
 	for _, fHeaders := range r.MultipartForm.File {
 		for _, hdr := range fHeaders {
 			uploadedFiles, err = func([]*UploadedFile) ([]*UploadedFile, error) {
@@ -176,4 +180,16 @@ func (t *Tools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) (
 	}
 
 	return uploadedFiles, nil
+}
+
+func (t *Tools) CreateDirIfNotExists(path string) error {
+	const mode = 0755
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		err := os.MkdirAll(path, mode)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
